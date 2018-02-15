@@ -61,7 +61,7 @@ if (count($_POST) > 0) {
 </form>
 
 <ul>
-    <li><a href="admin.php">Загрузить тест</a></li>
+    <li><a href="admin1.php">Загрузить тест</a></li>
     <li><a href="list.php">Список тестов</a></li>
 </ul>
 

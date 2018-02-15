@@ -25,7 +25,7 @@ foreach ($file_list as $key => $file) {
 ?>
 
 <ul>
-    <li><a href="admin.php">Загрузить тест</a></li>
+    <li><a href="admin1.php">Загрузить тест</a></li>
     <li><a href="list.php">Список тестов</a></li>
 </ul>
 

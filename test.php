@@ -1,69 +1,103 @@
 <?php
-$file_list = glob('uploads/*.json');
-$test = [];
-foreach ($file_list as $key => $file) {
+$fileList = glob('uploads/*.json');
+if (!isset($_GET['test'])) {
+    ?>
+    <p>Такого теста не существует</p>
+    <p><a href="list.php">Список тестов</a></p>
+    <?php
+    exit;
+}
+foreach ($fileList as $key => $file) {
     if ($key == $_GET['test']) {
-        $file_test = file_get_contents($file_list[$key]);
-        $decode_file = json_decode($file_test, true);
-        $test = $decode_file;
-    }
-}
-$question = $test[0]['question'];
-$answers[] = $test[0]['answers'];
-// Считаем кол-во правильных ответов
-$result_true = 0;
-foreach ($answers[0] as $item) {
-    if ($item['result'] === true) {
-        $result_true++;
-    }
-}
-$post_true = 0;
-$post_false = 0;
-if (count($_POST) > 0) {
-    // Проверяем и считаем правильность введенных ответов
-    foreach ($_POST as $key => $item) {
-        if ($answers[0][$key]['result'] === true) {
-            $post_true++;
-        }else{
-            $post_false++;
-        }
-    }
-    // Сравниваем и выводим результат
-    if ($post_true === $result_true && $post_false === 0) {
-        echo 'Правильно!';
-    }elseif ($post_true > 0 && $post_false > 0) {
-        echo 'Почти угадали =)';
-    }else{
-        echo 'Вы ошиблись =(';
+        $fileTest = file_get_contents($fileList[$key]);
+        $decodeFile = json_decode($fileTest, true);
+        $test = $decodeFile;
     }
 }
 ?>
-
 <!doctype html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Тест: <?=$question?></title>
+    <style>
+        body {
+            padding: 10px 20px;
+        }
+        fieldset {
+            margin-bottom: 10px;
+        }
+        .add {
+            margin-bottom: 10px;
+        }
+        h3 {
+            margin: 0;
+        }
+        h4 {
+            margin: 5px;
+        }
+        p {
+            margin: 0;
+        }
+        label {
+            margin-right: 10px;
+        }
+    </style>
+    <title>Тесты</title>
 </head>
 <body>
-
-<form method="post">
+<form action="" method="post" enctype=multipart/form-data>
     <fieldset>
-        <legend><?=$question?></legend>
-        <?php foreach ($answers[0] as $key => $item) : ?>
-            <label><input type="radio" name="<?=$key;?>" value="<?=$item['answer'];?>"> <?=$item['answer'];?></label>
-        <?php endforeach; ?>
-    </fieldset>
-    <input type="submit" value="Отправить">
-</form>
+        <legend><h3><?= $test[0]['question'] ?></h3></legend>
 
-<ul>
-    <li><a href="admin1.php">Загрузить тест</a></li>
-    <li><a href="list.php">Список тестов</a></li>
-</ul>
+        <?php
+        for ($i = 0; $i < count($test[0]['items']); $i++) {
+            ?>
+            <p><h4><?= $test[0]['items'][$i]['quest'] ?></h4></p>
+            <?php
+            for ($k = 0; $k < count($test[0]['items'][$i]['answers']); $k++) {
+                $arrResultRight[] = $test[0]['items'][$i]['answers'][$k]['result'];
+                ?>
+                <label><input type=radio name="<?= $i ?>" value="<?= $test[0]['items'][$i]['answers'][$k]['answer'] ?>"><?= $test[0]['items'][$i]['answers'][$k]['answer'] ?></label>
+                <?php
+            }
+        }
+        ?>
+    </fieldset>
+    <input class="add" type="submit" name="add" value="Отправить">
+</form>
+<?php
+if (empty($_POST['add'])) {
+    ?>
+    <p>Введите данные в форму</p>
+    <p><a href="list.php">Список тестов</a></li></p>
+    <?php
+    exit;
+} else {
+    foreach ($test[0]['items'] as $key => $value) {
+        for ($i = 0; $i < count($_POST); $i++) {
+            if ($i == $key) {
+                for ($k = 0; $k < count($test[0]['items'][$i]['answers']); $k++) {
+                    if ($_POST[$i] === $test[0]['items'][$i]['answers'][$k]['answer']) {
+                        $arrResult[] = $test[0]['items'][$i]['answers'][$k]['result'];
+                    }
+                }
+            }
+        }
+    }
+}
+$arrResult = array_sum($arrResult);
+$arrResultRight = array_sum($arrResultRight);
+if ($arrResult === $arrResultRight) {
+    ?>
+    <h4>Отлично</h4>
+    <?php
+} else {
+    ?>
+    <h4>Попробуйте еще раз</h4>
+    <?php
+}
+?>
+<a href="list.php">Список тестов</a></li>
 
 </body>
 </html>
